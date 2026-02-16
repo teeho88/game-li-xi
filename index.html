@@ -355,6 +355,22 @@
         function formatMoney(n) {
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
         }
+
+        // Công khai các hàm để nút bấm HTML có thể gọi được
+        window.joinGame = joinGame;
+        window.startGame = startGame;
+        window.closeModal = closeModal;
+        
+        // Sửa lỗi pickPlayer
+        window.pickPlayer = function(playerId) {
+            console.log("Đang chọn người chơi:", playerId); // Log để kiểm tra
+            update(ref(db, `rooms/${roomId}`), {
+                currentTurn: playerId
+            });
+        };
+        
+        // Hàm mở lì xì (nếu chưa có)
+        window.openLixi = openLixi;
     </script>
 </body>
 </html>

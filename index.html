@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bốc Thăm Lì Xì May Mắn</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #b30000; /* Đỏ đậm */
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #ffd700; /* Vàng kim */
+            text-shadow: 2px 2px 4px #000;
+            margin-bottom: 10px;
+        }
+
+        /* Phần Cài đặt (Setup) */
+        #setup-panel {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            color: #333;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px solid #b30000;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #ffd700;
+            color: #b30000;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #ffd700;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Khu vực chơi game */
+        #game-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+
+        /* Bao lì xì */
+        .lixi-envelope {
+            width: 100px;
+            height: 140px;
+            background: linear-gradient(135deg, #ff4d4d, #cc0000);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: transform 0.3s;
+            font-size: 40px; /* Icon size */
+            user-select: none;
+        }
+
+        .lixi-envelope::before {
+            content: "🧧"; /* Emoji bao lì xì */
+        }
+
+        .lixi-envelope:hover {
+            transform: translateY(-10px) rotate(2deg);
+        }
+
+        /* Hiệu ứng khi chọn */
+        .lixi-envelope.opened {
+            animation: popOut 0.5s forwards;
+        }
+
+        @keyframes popOut {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* Popup kết quả */
+        #result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #fff;
+            color: #b30000;
+            padding: 40px;
+            border-radius: 20px;
+            border: 5px solid #ffd700;
+            text-align: center;
+            animation: zoomIn 0.3s ease;
+            max-width: 90%;
+        }
+
+        .money-text {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #d60000;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        #reset-btn {
+            margin-top: 30px;
+            background-color: #fff;
+            color: #333;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🧧 HÁI LỘC ĐẦU XUÂN 🧧</h1>
+
+    <div id="setup-panel">
+        <h3>Cài đặt (Dành cho chủ trò)</h3>
+        <p>Nhập số tiền cho từng bao lì xì, ngăn cách bằng dấu phẩy (,)</p>
+        <p><i>Ví dụ: 10000, 20000, 50000, 10000, 500000</i></p>
+        <textarea id="money-input" placeholder="Nhập danh sách tiền tại đây...">10000, 20000, 50000, 100000, 200000, 10000, 50000</textarea>
+        <br>
+        <button onclick="startGame()">Bắt đầu Game</button>
+    </div>
+
+    <div id="game-area"></div>
+
+    <button id="reset-btn" class="hidden" onclick="location.reload()">Cài đặt lại</button>
+
+    <div id="result-modal" class="hidden" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>🎉 Chúc Mừng! 🎉</h2>
+            <p>Bạn đã nhận được lì xì trị giá:</p>
+            <div class="money-text" id="result-amount">0 VNĐ</div>
+            <button onclick="closeModal()">Nhận lộc</button>
+        </div>
+    </div>
+
+    <script>
+        // Hàm xáo trộn mảng (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Định dạng tiền tệ VNĐ
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function startGame() {
+            const input = document.getElementById('money-input').value;
+            if (!input.trim()) {
+                alert("Vui lòng nhập danh sách tiền!");
+                return;
+            }
+
+            // Xử lý dữ liệu nhập vào: Tách dấu phẩy, xóa khoảng trắng, chuyển thành số
+            const amounts = input.split(',')
+                .map(str => parseInt(str.trim().replace(/\./g, ''))) // Xóa dấu chấm nếu người dùng lỡ nhập
+                .filter(num => !isNaN(num) && num > 0);
+
+            if (amounts.length === 0) {
+                alert("Dữ liệu không hợp lệ. Vui lòng nhập số.");
+                return;
+            }
+
+            // Xáo trộn danh sách tiền
+            const shuffledAmounts = shuffleArray(amounts);
+
+            // Ẩn panel cài đặt, hiện game
+            document.getElementById('setup-panel').classList.add('hidden');
+            document.getElementById('reset-btn').classList.remove('hidden');
+            const gameArea = document.getElementById('game-area');
+            gameArea.innerHTML = ''; // Xóa cũ
+
+            // Tạo các bao lì xì
+            shuffledAmounts.forEach((amount, index) => {
+                const envelope = document.createElement('div');
+                envelope.classList.add('lixi-envelope');
+                envelope.dataset.amount = amount;
+                envelope.id = `lixi-${index}`;
+                
+                // Sự kiện click
+                envelope.onclick = function() {
+                    openEnvelope(this);
+                };
+
+                gameArea.appendChild(envelope);
+            });
+        }
+
+        function openEnvelope(element) {
+            // Lấy số tiền
+            const amount = parseInt(element.dataset.amount);
+            
+            // Hiển thị kết quả
+            document.getElementById('result-amount').innerText = formatMoney(amount);
+            document.getElementById('result-modal').classList.remove('hidden');
+
+            // Hiệu ứng biến mất bao lì xì
+            element.classList.add('opened');
+            
+            // Sau khi animation xong (0.5s), xóa khỏi DOM để không ai click được nữa
+            setTimeout(() => {
+                element.style.visibility = 'hidden'; // Giữ khoảng trống hoặc dùng display='none' để dồn lại
+                // element.style.display = 'none'; // Nếu muốn các bao dồn lại gần nhau thì dùng dòng này
+            }, 500);
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

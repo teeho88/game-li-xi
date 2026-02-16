@@ -7,7 +7,7 @@
     <style>
         /* --- CSS --- */
         body { font-family: 'Segoe UI', sans-serif; background-color: #b30000; color: #fff; margin: 0; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-        h1 { color: #ffd700; text-shadow: 2px 2px 4px #000; margin-bottom: 20px; text-align: center; }
+        h1 { color: #ffd700; text-shadow: 2px 2px 4px #000; margin-bottom: 10px; text-align: center; }
         
         .panel { background: #fff; padding: 30px; border-radius: 15px; color: #333; max-width: 500px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 20px; text-align: center; }
         
@@ -21,8 +21,20 @@
         
         .hidden { display: none !important; }
         
-        /* Room Display Badge */
-        .room-badge { background: #b30000; color: #ffd700; padding: 5px 15px; border-radius: 15px; font-weight: bold; font-size: 1.2em; display: inline-block; margin-bottom: 15px; border: 2px solid #ffd700; }
+        /* Room Display Badge - Luôn hiện ở trên cùng */
+        .room-badge { 
+            background: #fff; 
+            color: #b30000; 
+            padding: 8px 20px; 
+            border-radius: 20px; 
+            font-weight: 800; 
+            font-size: 1.5em; 
+            display: inline-block; 
+            margin-bottom: 20px; 
+            border: 3px solid #ffd700; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+        }
 
         /* Game Area */
         #game-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; max-width: 1000px; width: 100%; margin-top: 20px; }
@@ -49,6 +61,8 @@
 
     <h1>🧧 LÌ XÌ ONLINE 🧧</h1>
     
+    <div id="room-display" class="room-badge hidden">PHÒNG: ...</div>
+
     <div id="turn-notification" class="hidden">...</div>
 
     <div id="login-panel" class="panel">
@@ -61,11 +75,10 @@
     </div>
 
     <div id="setup-panel" class="panel hidden">
-        <div class="room-badge" id="room-display">Phòng: ...</div>
         
         <div id="admin-controls" class="hidden">
             <p><strong>Cài đặt tiền (Admin):</strong></p>
-            <textarea id="money-input" placeholder="Nhập: 10k, 20k, 50k, 100k...">200k, 500k, 500k, 1tr</textarea>
+            <textarea id="money-input" placeholder="Nhập: 10k, 20k, 50k, 100k...">100k, 200k, 500k, 1tr</textarea>
             <button onclick="window.startGame()">BẮT ĐẦU GAME</button>
             <hr>
         </div>
@@ -112,6 +125,7 @@
           messagingSenderId: "584090681077",
           appId: "1:584090681077:web:27c09dc5e0d6e149fa8fbc"
         };
+
         // -----------------------------------------------------------
 
         const app = initializeApp(firebaseConfig);
@@ -173,7 +187,10 @@
             document.getElementById('login-panel').classList.add('hidden');
             document.getElementById('setup-panel').classList.remove('hidden');
             
-            document.getElementById('room-display').innerText = `PHÒNG: ${roomId}`;
+            // HIỆN TÊN PHÒNG VÀ SET TEXT
+            const roomBadge = document.getElementById('room-display');
+            roomBadge.innerText = `PHÒNG: ${roomId}`;
+            roomBadge.classList.remove('hidden');
 
             if (isAdmin) {
                 document.getElementById('admin-controls').classList.remove('hidden');
@@ -233,7 +250,6 @@
                 } else {
                     document.getElementById('game-panel').classList.add('hidden');
                     document.getElementById('setup-panel').classList.remove('hidden');
-                    document.getElementById('room-display').innerText = `PHÒNG: ${roomId}`;
                 }
 
                 renderPlayerList(data.players || {}, data.currentTurn);
@@ -322,7 +338,7 @@
 
         function renderPlayerList(players, currentTurnId) {
             const listHtml = Object.entries(players)
-                .filter(([id, p]) => p.role !== 'admin') // LỌC BỎ ADMIN
+                .filter(([id, p]) => p.role !== 'admin') // Lọc Admin khỏi danh sách
                 .map(([id, p]) => {
                     const isTurn = id === currentTurnId;
                     let btn = '';

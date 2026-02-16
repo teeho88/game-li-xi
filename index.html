@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bốc Thăm Lì Xì May Mắn</title>
     <style>
+        /* --- CẤU HÌNH CHUNG --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #b30000; /* Đỏ đậm */
+            background-color: #b30000; /* Đỏ đậm lễ hội */
             color: #fff;
             margin: 0;
             padding: 20px;
-            text-align: center;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -21,111 +21,159 @@
         h1 {
             color: #ffd700; /* Vàng kim */
             text-shadow: 2px 2px 4px #000;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        /* Phần Cài đặt (Setup) */
+        /* --- PHẦN CÀI ĐẶT (SETUP PANEL) --- */
         #setup-panel {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 10px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
             color: #333;
             max-width: 500px;
             width: 100%;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            /* Flexbox để căn giữa nội dung bên trong */
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            text-align: center;
         }
 
+        #setup-panel h3 {
+            margin-top: 0;
+            color: #b30000;
+        }
+
+        /* Ô nhập liệu được làm đẹp và căn giữa */
         textarea {
-            width: 100%;
+            width: 90%; /* Chiếm 90% chiều ngang của khung cha */
             height: 100px;
-            margin: 10px 0;
-            padding: 10px;
-            border: 2px solid #b30000;
-            border-radius: 5px;
+            margin: 15px 0;
+            padding: 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
             font-size: 16px;
+            font-family: inherit;
+            resize: vertical; /* Chỉ cho phép kéo giãn chiều dọc */
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box; /* Quan trọng: Giữ padding không làm vỡ khung */
         }
 
+        textarea:focus {
+            border-color: #b30000;
+            box-shadow: 0 0 8px rgba(179, 0, 0, 0.2);
+        }
+
+        /* Nút bấm chung */
         button {
             background-color: #ffd700;
             color: #b30000;
             border: none;
-            padding: 12px 24px;
+            padding: 12px 30px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             border-radius: 50px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            text-transform: uppercase;
         }
 
         button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(255, 215, 0, 0.4);
+            background-color: #ffec8b;
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         .hidden {
             display: none !important;
         }
 
-        /* Khu vực chơi game */
+        /* --- KHU VỰC CHƠI GAME --- */
         #game-area {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 20px;
+            gap: 25px;
             max-width: 1200px;
-            margin-top: 20px;
+            width: 100%;
+            padding-bottom: 50px;
         }
 
-        /* Bao lì xì */
+        /* --- BAO LÌ XÌ --- */
         .lixi-envelope {
-            width: 100px;
-            height: 140px;
+            width: 110px;
+            height: 150px;
             background: linear-gradient(135deg, #ff4d4d, #cc0000);
             border: 2px solid #ffd700;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            transition: transform 0.3s;
-            font-size: 40px; /* Icon size */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 50px;
             user-select: none;
         }
 
+        /* Họa tiết trang trí đơn giản */
+        .lixi-envelope::after {
+            content: "福"; /* Chữ Phúc */
+            font-size: 24px;
+            color: #ffd700;
+            position: absolute;
+            top: 10px;
+            font-weight: bold;
+            border: 1px solid #ffd700;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+
         .lixi-envelope::before {
-            content: "🧧"; /* Emoji bao lì xì */
+            content: "🧧";
         }
 
         .lixi-envelope:hover {
-            transform: translateY(-10px) rotate(2deg);
+            transform: scale(1.1) rotate(3deg);
+            z-index: 10;
         }
 
-        /* Hiệu ứng khi chọn */
+        /* Hiệu ứng khi mở */
         .lixi-envelope.opened {
-            animation: popOut 0.5s forwards;
+            animation: popOut 0.6s forwards;
+            pointer-events: none;
         }
 
         @keyframes popOut {
             0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.8; }
+            40% { transform: scale(1.3); opacity: 1; }
             100% { transform: scale(0); opacity: 0; }
         }
 
-        /* Popup kết quả */
+        /* --- POPUP KẾT QUẢ --- */
         #result-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85); /* Nền tối hơn */
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
@@ -133,29 +181,38 @@
             color: #b30000;
             padding: 40px;
             border-radius: 20px;
-            border: 5px solid #ffd700;
+            border: 4px solid #ffd700;
             text-align: center;
-            animation: zoomIn 0.3s ease;
+            animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             max-width: 90%;
+            width: 400px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
         }
 
         .money-text {
             font-size: 48px;
-            font-weight: bold;
+            font-weight: 800;
             margin: 20px 0;
             color: #d60000;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
         }
 
         @keyframes zoomIn {
-            from { transform: scale(0); }
-            to { transform: scale(1); }
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         #reset-btn {
             margin-top: 30px;
-            background-color: #fff;
-            color: #333;
+            background-color: transparent;
+            border: 2px solid #fff;
+            color: #fff;
             font-size: 14px;
+        }
+        
+        #reset-btn:hover {
+            background-color: #fff;
+            color: #b30000;
         }
     </style>
 </head>
@@ -164,29 +221,28 @@
     <h1>🧧 HÁI LỘC ĐẦU XUÂN 🧧</h1>
 
     <div id="setup-panel">
-        <h3>Cài đặt (Dành cho chủ trò)</h3>
-        <p>Nhập số tiền cho từng bao lì xì, ngăn cách bằng dấu phẩy (,)</p>
-        <p><i>Ví dụ: 10000, 20000, 50000, 10000, 500000</i></p>
-        <textarea id="money-input" placeholder="Nhập danh sách tiền tại đây...">10000, 20000, 50000, 100000, 200000, 10000, 50000</textarea>
-        <br>
-        <button onclick="startGame()">Bắt đầu Game</button>
+        <h3>CÀI ĐẶT TRÒ CHƠI</h3>
+        <p>Nhập số tiền cho từng bao, ngăn cách bằng dấu phẩy:</p>
+        
+        <textarea id="money-input" placeholder="Ví dụ: 50000, 100000, 20000...">10000, 20000, 50000, 100000, 200000, 500000</textarea>
+        
+        <button onclick="startGame()">BẮT ĐẦU NGAY</button>
     </div>
 
     <div id="game-area"></div>
 
-    <button id="reset-btn" class="hidden" onclick="location.reload()">Cài đặt lại</button>
+    <button id="reset-btn" class="hidden" onclick="location.reload()">↺ CHƠI LẠI TỪ ĐẦU</button>
 
     <div id="result-modal" class="hidden" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2>🎉 Chúc Mừng! 🎉</h2>
-            <p>Bạn đã nhận được lì xì trị giá:</p>
-            <div class="money-text" id="result-amount">0 VNĐ</div>
-            <button onclick="closeModal()">Nhận lộc</button>
+            <h2>🎉 CHÚC MỪNG 🎉</h2>
+            <p>Bạn đã nhận được lộc xuân:</p>
+            <div class="money-text" id="result-amount">0 đ</div>
+            <button onclick="closeModal()">NHẬN LỘC</button>
         </div>
     </div>
 
     <script>
-        // Hàm xáo trộn mảng (Fisher-Yates Shuffle)
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -195,7 +251,6 @@
             return array;
         }
 
-        // Định dạng tiền tệ VNĐ
         function formatMoney(amount) {
             return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
         }
@@ -207,33 +262,39 @@
                 return;
             }
 
-            // Xử lý dữ liệu nhập vào: Tách dấu phẩy, xóa khoảng trắng, chuyển thành số
             const amounts = input.split(',')
-                .map(str => parseInt(str.trim().replace(/\./g, ''))) // Xóa dấu chấm nếu người dùng lỡ nhập
+                .map(str => parseInt(str.trim().replace(/\./g, '')))
                 .filter(num => !isNaN(num) && num > 0);
 
             if (amounts.length === 0) {
-                alert("Dữ liệu không hợp lệ. Vui lòng nhập số.");
+                alert("Dữ liệu nhập vào chưa đúng. Vui lòng kiểm tra lại!");
                 return;
             }
 
-            // Xáo trộn danh sách tiền
             const shuffledAmounts = shuffleArray(amounts);
 
-            // Ẩn panel cài đặt, hiện game
-            document.getElementById('setup-panel').classList.add('hidden');
-            document.getElementById('reset-btn').classList.remove('hidden');
-            const gameArea = document.getElementById('game-area');
-            gameArea.innerHTML = ''; // Xóa cũ
+            // Ẩn Setup, Hiện Game
+            const setupPanel = document.getElementById('setup-panel');
+            setupPanel.style.opacity = '0';
+            setTimeout(() => {
+                setupPanel.classList.add('hidden');
+                document.getElementById('reset-btn').classList.remove('hidden');
+                renderEnvelopes(shuffledAmounts);
+            }, 300);
+        }
 
-            // Tạo các bao lì xì
-            shuffledAmounts.forEach((amount, index) => {
+        function renderEnvelopes(amounts) {
+            const gameArea = document.getElementById('game-area');
+            gameArea.innerHTML = '';
+
+            amounts.forEach((amount, index) => {
                 const envelope = document.createElement('div');
                 envelope.classList.add('lixi-envelope');
                 envelope.dataset.amount = amount;
-                envelope.id = `lixi-${index}`;
                 
-                // Sự kiện click
+                // Thêm animation delay nhẹ để các bao hiện ra lần lượt cho đẹp
+                envelope.style.animation = `zoomIn 0.5s ease ${index * 0.1}s backwards`;
+
                 envelope.onclick = function() {
                     openEnvelope(this);
                 };
@@ -243,21 +304,14 @@
         }
 
         function openEnvelope(element) {
-            // Lấy số tiền
             const amount = parseInt(element.dataset.amount);
-            
-            // Hiển thị kết quả
             document.getElementById('result-amount').innerText = formatMoney(amount);
             document.getElementById('result-modal').classList.remove('hidden');
-
-            // Hiệu ứng biến mất bao lì xì
             element.classList.add('opened');
             
-            // Sau khi animation xong (0.5s), xóa khỏi DOM để không ai click được nữa
             setTimeout(() => {
-                element.style.visibility = 'hidden'; // Giữ khoảng trống hoặc dùng display='none' để dồn lại
-                // element.style.display = 'none'; // Nếu muốn các bao dồn lại gần nhau thì dùng dòng này
-            }, 500);
+                element.style.visibility = 'hidden';
+            }, 600);
         }
 
         function closeModal() {

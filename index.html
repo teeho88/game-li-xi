@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lì Xì Online - Realtime</title>
     <style>
-        /* --- CSS GIỮ NGUYÊN --- */
+        /* --- CSS --- */
         body { font-family: 'Segoe UI', sans-serif; background-color: #b30000; color: #fff; margin: 0; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
         h1 { color: #ffd700; text-shadow: 2px 2px 4px #000; margin-bottom: 20px; text-align: center; }
         
@@ -15,12 +15,15 @@
         
         button { background-color: #ffd700; color: #b30000; border: none; padding: 12px 20px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 50px; margin: 5px; transition: 0.2s; }
         button:hover { background-color: #ffec8b; transform: scale(1.05); }
-        button:disabled { background-color: #ccc; cursor: wait; transform: none; }
+        button:disabled { background-color: #ccc; cursor: wait; transform: none; color: #666; }
         button.secondary { background-color: #eee; color: #333; border: 1px solid #ccc; }
         button.danger { background-color: #ff4d4d; color: white; }
         
         .hidden { display: none !important; }
         
+        /* Room Display Badge */
+        .room-badge { background: #b30000; color: #ffd700; padding: 5px 15px; border-radius: 15px; font-weight: bold; font-size: 1.2em; display: inline-block; margin-bottom: 15px; border: 2px solid #ffd700; }
+
         /* Game Area */
         #game-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; max-width: 1000px; width: 100%; margin-top: 20px; }
         .lixi-envelope { width: 80px; height: 110px; background: linear-gradient(135deg, #ff4d4d, #cc0000); border: 2px solid #ffd700; border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 30px; user-select: none; position: relative; transition: 0.3s; }
@@ -58,11 +61,11 @@
     </div>
 
     <div id="setup-panel" class="panel hidden">
-        <h3 id="room-display">Phòng: ...</h3>
+        <div class="room-badge" id="room-display">Phòng: ...</div>
         
         <div id="admin-controls" class="hidden">
             <p><strong>Cài đặt tiền (Admin):</strong></p>
-            <textarea id="money-input" placeholder="Nhập: 10k, 20k, 50k, 100k...">50k, 100k, 200k, 500k, 1tr</textarea>
+            <textarea id="money-input" placeholder="Nhập: 10k, 20k, 50k, 100k...">200k, 500k, 500k, 1tr</textarea>
             <button onclick="window.startGame()">BẮT ĐẦU GAME</button>
             <hr>
         </div>
@@ -96,11 +99,10 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        // Thêm 'get' và 'child' vào import
-        import { getDatabase, ref, set, onValue, update, remove, onDisconnect, get, child } 
+        import { getDatabase, ref, set, onValue, update, remove, onDisconnect, get } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // --- CẤU HÌNH FIREBASE ---
+        // --- CẤU HÌNH FIREBASE (DÁN LẠI CONFIG CỦA BẠN VÀO ĐÂY) ---
         const firebaseConfig = {
           apiKey: "AIzaSyA3yMvVIjxySUYIFsjMLG98rrzLQbcZiFM",
           authDomain: "game-li-xi-tet.firebaseapp.com",
@@ -132,51 +134,46 @@
 
             const btnJoin = document.getElementById('btn-join');
             const btnCreate = document.getElementById('btn-create');
-            
-            // Khóa nút để tránh bấm nhiều lần
+
             btnJoin.disabled = true;
             btnCreate.disabled = true;
+            const originalText = btnJoin.innerText;
             btnJoin.innerText = "Đang kiểm tra...";
 
             const roomRef = ref(db, `rooms/${roomId}`);
-
-            // Kiểm tra phòng có tồn tại không
+            
             get(roomRef).then((snapshot) => {
-                const exists = snapshot.exists();
+                const roomExists = snapshot.exists();
 
-                // NẾU LÀ NGƯỜI CHƠI MÀ PHÒNG KHÔNG TỒN TẠI -> BÁO LỖI
-                if (role === 'player' && !exists) {
-                    alert(`❌ Phòng "${roomId}" chưa được tạo!\nVui lòng liên hệ Admin hoặc kiểm tra lại mã phòng.`);
-                    // Mở khóa lại nút
+                if (role === 'player' && !roomExists) {
+                    alert(`❌ LỖI: Phòng "${roomId}" không tồn tại!\nVui lòng kiểm tra lại mã phòng hoặc nhờ Admin tạo phòng trước.`);
                     btnJoin.disabled = false;
                     btnCreate.disabled = false;
-                    btnJoin.innerText = "Vào Chơi";
+                    btnJoin.innerText = originalText;
                     return; 
                 }
 
-                // Nếu là Admin hoặc phòng đã tồn tại -> Tiếp tục đăng nhập
                 isAdmin = (role === 'admin');
                 proceedLogin(role);
 
             }).catch((error) => {
                 console.error(error);
-                alert("Lỗi kết nối Firebase!");
+                alert("Lỗi kết nối Server! Vui lòng thử lại.");
                 btnJoin.disabled = false;
                 btnCreate.disabled = false;
-                btnJoin.innerText = "Vào Chơi";
+                btnJoin.innerText = originalText;
             });
         };
 
         function proceedLogin(role) {
-            // Lưu info người chơi
             const userRef = ref(db, `rooms/${roomId}/players/${myId}`);
             set(userRef, { name: myName, role: role, online: true });
             onDisconnect(userRef).remove();
 
-            // Chuyển UI
             document.getElementById('login-panel').classList.add('hidden');
             document.getElementById('setup-panel').classList.remove('hidden');
-            document.getElementById('room-display').innerText = `Phòng: ${roomId} (${role === 'admin' ? 'Admin' : 'Player'})`;
+            
+            document.getElementById('room-display').innerText = `PHÒNG: ${roomId}`;
 
             if (isAdmin) {
                 document.getElementById('admin-controls').classList.remove('hidden');
@@ -227,7 +224,7 @@
             const roomRef = ref(db, `rooms/${roomId}`);
             onValue(roomRef, (snapshot) => {
                 const data = snapshot.val();
-                if (!data) return;
+                if (!data) return; 
 
                 if (data.status === 'playing') {
                     document.getElementById('setup-panel').classList.add('hidden');
@@ -236,6 +233,7 @@
                 } else {
                     document.getElementById('game-panel').classList.add('hidden');
                     document.getElementById('setup-panel').classList.remove('hidden');
+                    document.getElementById('room-display').innerText = `PHÒNG: ${roomId}`;
                 }
 
                 renderPlayerList(data.players || {}, data.currentTurn);
@@ -268,7 +266,7 @@
 
         function handleOpenLixi(index) {
             const roomRef = ref(db, `rooms/${roomId}`);
-            onValue(roomRef, (snap) => {
+            get(roomRef).then((snap) => {
                 const d = snap.val();
                 if (d.currentTurn !== myId) return alert("Chưa đến lượt bạn!");
                 if (d.lixis[index].opened) return alert("Bao này đã mở!");
@@ -283,7 +281,7 @@
                         timestamp: Date.now()
                     }
                 });
-            }, { onlyOnce: true });
+            });
         }
 
         function showGlobalResult(result) {
@@ -298,7 +296,7 @@
                 title.innerText = "🎉 BẠN ĐÃ NHẬN ĐƯỢC 🎉";
                 winnerText.innerText = "Chúc mừng năm mới phát tài!";
             } else {
-                title.innerText = "🔔 KẾT QUẢ LÌ XÌ 🔔";
+                title.innerText = "🔔 KẾT QUẢ 🔔";
                 winnerText.innerText = `Chúc mừng ${result.winnerName} đã mở được:`;
             }
             modal.classList.remove('hidden');
@@ -323,19 +321,22 @@
         }
 
         function renderPlayerList(players, currentTurnId) {
-            const listHtml = Object.entries(players).map(([id, p]) => {
-                const isTurn = id === currentTurnId;
-                let btn = '';
-                if (isAdmin) { 
-                    btn = `<button onclick="window.pickPlayer('${id}')" style="font-size:12px; padding:5px 10px">Mời</button>`;
-                }
-                return `
-                    <div class="player-item ${isTurn ? 'active-turn' : ''}">
-                        <span>${p.name} ${isTurn ? '⭐' : ''}</span>
-                        ${btn}
-                    </div>
-                `;
-            }).join('');
+            const listHtml = Object.entries(players)
+                .filter(([id, p]) => p.role !== 'admin') // LỌC BỎ ADMIN
+                .map(([id, p]) => {
+                    const isTurn = id === currentTurnId;
+                    let btn = '';
+                    if (isAdmin) { 
+                        btn = `<button onclick="window.pickPlayer('${id}')" style="font-size:12px; padding:5px 10px">Mời</button>`;
+                    }
+                    return `
+                        <div class="player-item ${isTurn ? 'active-turn' : ''}">
+                            <span>${p.name} ${isTurn ? '⭐' : ''}</span>
+                            ${btn}
+                        </div>
+                    `;
+                }).join('');
+            
             document.getElementById('lobby-players').innerHTML = listHtml;
             if (isAdmin) document.getElementById('active-player-list').innerHTML = listHtml;
         }

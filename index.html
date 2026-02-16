@@ -3,33 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lì Xì Online - Sửa Lỗi</title>
+    <title>Lì Xì Online - Realtime</title>
     <style>
-        /* CSS GIỮ NGUYÊN */
+        /* --- CSS --- */
         body { font-family: 'Segoe UI', sans-serif; background-color: #b30000; color: #fff; margin: 0; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
         h1 { color: #ffd700; text-shadow: 2px 2px 4px #000; margin-bottom: 20px; text-align: center; }
+        
         .panel { background: #fff; padding: 30px; border-radius: 15px; color: #333; max-width: 500px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 20px; text-align: center; }
-        input, textarea { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #ccc; border-radius: 8px; font-size: 16px; }
-        button { background-color: #ffd700; color: #b30000; border: none; padding: 12px 30px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 50px; margin: 5px; }
-        button:hover { background-color: #ffec8b; }
+        
+        input, textarea { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        
+        button { background-color: #ffd700; color: #b30000; border: none; padding: 12px 20px; font-size: 14px; font-weight: bold; cursor: pointer; border-radius: 50px; margin: 5px; transition: 0.2s; }
+        button:hover { background-color: #ffec8b; transform: scale(1.05); }
+        button.secondary { background-color: #eee; color: #333; border: 1px solid #ccc; }
+        button.danger { background-color: #ff4d4d; color: white; }
+        
         .hidden { display: none !important; }
         
         /* Game Area */
         #game-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; max-width: 1000px; width: 100%; margin-top: 20px; }
-        .lixi-envelope { width: 80px; height: 110px; background: linear-gradient(135deg, #ff4d4d, #cc0000); border: 2px solid #ffd700; border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 30px; user-select: none; position: relative; }
+        .lixi-envelope { width: 80px; height: 110px; background: linear-gradient(135deg, #ff4d4d, #cc0000); border: 2px solid #ffd700; border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 30px; user-select: none; position: relative; transition: 0.3s; }
         .lixi-envelope::before { content: "🧧"; }
-        .lixi-envelope.opened { opacity: 0; transform: scale(0); transition: all 0.5s; pointer-events: none; }
+        .lixi-envelope:hover { transform: translateY(-5px); }
+        .lixi-envelope.opened { opacity: 0; transform: scale(0); pointer-events: none; }
         
-        /* Admin Controls */
+        /* Player List */
         .player-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
         .player-item.active-turn { background-color: #e6fffa; border-left: 5px solid #00b894; }
-        .status-badge { font-size: 12px; padding: 2px 6px; border-radius: 4px; background: #eee; }
-        .status-picking { background: #ffd700; color: #b30000; font-weight: bold; }
 
+        /* Notification Bar */
+        #turn-notification { position: fixed; top: 10px; z-index: 2000; padding: 10px 20px; border-radius: 30px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: 0.3s; }
+        
         /* Modal Result */
         #result-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 3000; }
-        .modal-content { background: #fff; color: #b30000; padding: 40px; border-radius: 20px; border: 4px solid #ffd700; text-align: center; animation: zoomIn 0.4s; }
-        .money-text { font-size: 40px; font-weight: 800; margin: 20px 0; color: #d60000; }
+        .modal-content { background: #fff; color: #b30000; padding: 40px; border-radius: 20px; border: 4px solid #ffd700; text-align: center; animation: zoomIn 0.4s; position: relative; max-width: 90%; width: 400px; }
+        .money-text { font-size: 40px; font-weight: 800; margin: 20px 0; color: #d60000; word-break: break-word; }
         @keyframes zoomIn { from {transform: scale(0);} to {transform: scale(1);} }
     </style>
 </head>
@@ -37,23 +45,23 @@
 
     <h1>🧧 LÌ XÌ ONLINE 🧧</h1>
     
-    <div id="turn-notification" style="background:#fff; color:#333; padding:10px 20px; border-radius:20px; margin-bottom:10px;" class="hidden">...</div>
+    <div id="turn-notification" class="hidden">...</div>
 
     <div id="login-panel" class="panel">
         <h3>Tham gia trò chơi</h3>
-        <input type="text" id="username" placeholder="Nhập tên của bạn...">
-        <input type="text" id="room-id" placeholder="Mã phòng (Ví dụ: TET2026)">
+        <input type="text" id="username" placeholder="Tên của bạn (VD: Tên gì cũng được)">
+        <input type="text" id="room-id" placeholder="Mã phòng (VD: TET2026)">
         <br>
         <button onclick="window.joinGame('player')">Vào Chơi</button>
-        <button onclick="window.joinGame('admin')" style="background-color: #eee; color: #333;">Tạo Phòng (Admin)</button>
+        <button onclick="window.joinGame('admin')" class="secondary">Tạo Phòng (Admin)</button>
     </div>
 
     <div id="setup-panel" class="panel hidden">
         <h3 id="room-display">Phòng: ...</h3>
         
         <div id="admin-controls" class="hidden">
-            <p>Cài đặt lì xì (Admin):</p>
-            <textarea id="money-input" placeholder="Ví dụ: 50k, 100k, 200k...">10k, 20k, 50k, 100k</textarea>
+            <p><strong>Cài đặt tiền (Admin):</strong></p>
+            <textarea id="money-input" placeholder="Nhập: 10k, 20k, 50k, 100k...">10k, 20k, 50k, 100k, 200k, 500k</textarea>
             <button onclick="window.startGame()">BẮT ĐẦU GAME</button>
             <hr>
         </div>
@@ -69,14 +77,17 @@
         
         <div id="admin-game-controls" class="panel hidden" style="margin-top: 20px;">
             <h3>Điều khiển (Admin)</h3>
-            <p>Bấm "Mời" để người chơi được chọn lì xì:</p>
+            <p>Chọn người để mời mở lì xì:</p>
             <div id="active-player-list"></div>
+            <hr>
+            <button onclick="window.resetGame()" class="danger">↺ RESET GAME (Ván Mới)</button>
         </div>
     </div>
 
     <div id="result-modal" class="hidden">
         <div class="modal-content">
-            <h2>🎉 CHÚC MỪNG 🎉</h2>
+            <h2 id="result-title">🎉 CHÚC MỪNG 🎉</h2>
+            <p id="result-winner" style="font-size: 18px; color: #333;">...</p>
             <div class="money-text" id="result-amount">0 đ</div>
             <button onclick="window.closeModal()">Đóng</button>
         </div>
@@ -87,21 +98,18 @@
         import { getDatabase, ref, set, onValue, update, remove, onDisconnect } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // ==========================================
-        // DÁN CONFIG CỦA BẠN VÀO ĐÂY
-        // ==========================================
+        // --- CẤU HÌNH FIREBASE (DÁN LẠI CONFIG CỦA BẠN VÀO ĐÂY) ---
         const firebaseConfig = {
-            apiKey: "AIzaSyA3yMvVIjxySUYIFsjMLG98rrzLQbcZiFM",
-            authDomain: "game-li-xi-tet.firebaseapp.com",
-            databaseURL: "https://game-li-xi-tet-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "game-li-xi-tet",
-            storageBucket: "game-li-xi-tet.firebasestorage.app",
-            messagingSenderId: "584090681077",
-            appId: "1:584090681077:web:27c09dc5e0d6e149fa8fbc"
+          apiKey: "AIzaSyA3yMvVIjxySUYIFsjMLG98rrzLQbcZiFM",
+          authDomain: "game-li-xi-tet.firebaseapp.com",
+          databaseURL: "https://game-li-xi-tet-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "game-li-xi-tet",
+          storageBucket: "game-li-xi-tet.firebasestorage.app",
+          messagingSenderId: "584090681077",
+          appId: "1:584090681077:web:27c09dc5e0d6e149fa8fbc"
         };
-        // ==========================================
+        // -----------------------------------------------------------
 
-        console.log("Script đang khởi chạy...");
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
@@ -110,29 +118,26 @@
         let myName = "";
         let roomId = "";
         let isAdmin = false;
+        let lastResultTimestamp = 0; // Để tránh hiển thị lại kết quả cũ
 
-        // --- GÁN HÀM RA WINDOW ĐỂ HTML GỌI ĐƯỢC ---
-        
-        // 1. Hàm Join Game
+        // --- PUBLIC FUNCTIONS (Gắn vào window để gọi từ HTML) ---
+
         window.joinGame = function(role) {
-            console.log("Join game called", role);
             myName = document.getElementById('username').value.trim();
             roomId = document.getElementById('room-id').value.trim().toUpperCase();
-
-            if (!myName || !roomId) {
-                alert("Vui lòng nhập tên và mã phòng!");
-                return;
-            }
+            if (!myName || !roomId) return alert("Vui lòng nhập đủ thông tin!");
 
             isAdmin = (role === 'admin');
-
+            
+            // Lưu info người chơi
             const userRef = ref(db, `rooms/${roomId}/players/${myId}`);
             set(userRef, { name: myName, role: role, online: true });
             onDisconnect(userRef).remove();
 
+            // Chuyển UI
             document.getElementById('login-panel').classList.add('hidden');
             document.getElementById('setup-panel').classList.remove('hidden');
-            document.getElementById('room-display').innerText = `Phòng: ${roomId}`;
+            document.getElementById('room-display').innerText = `Phòng: ${roomId} (${role})`;
 
             if (isAdmin) {
                 document.getElementById('admin-controls').classList.remove('hidden');
@@ -142,12 +147,12 @@
             listenToGame();
         };
 
-        // 2. Hàm Start Game (Admin)
         window.startGame = function() {
             const input = document.getElementById('money-input').value;
             const amounts = parseMoneyInput(input);
             if (amounts.length === 0) return alert("Chưa nhập tiền!");
 
+            // Xáo trộn tiền
             const lixis = amounts.sort(() => 0.5 - Math.random()).map((amt, idx) => ({
                 id: idx, amount: amt, opened: false
             }));
@@ -155,24 +160,32 @@
             update(ref(db, `rooms/${roomId}`), {
                 status: 'playing',
                 lixis: lixis,
-                currentTurn: null
+                currentTurn: null,
+                lastResult: null // Xóa kết quả cũ
             });
         };
 
-        // 3. Hàm Pick Player (SỬA LỖI Ở ĐÂY)
-        window.pickPlayer = function(playerId) {
-            console.log("Admin chọn người chơi:", playerId);
+        // Hàm Reset Game (Chỉ Admin)
+        window.resetGame = function() {
+            if (!confirm("Bạn có chắc muốn Reset để chơi ván mới không?")) return;
+            
             update(ref(db, `rooms/${roomId}`), {
-                currentTurn: playerId
-            }).catch(err => alert("Lỗi cập nhật: " + err.message));
+                status: 'setup', // Quay về màn hình cài đặt
+                lixis: [],
+                currentTurn: null,
+                lastResult: null
+            });
         };
 
-        // 4. Hàm Đóng Modal
+        window.pickPlayer = function(playerId) {
+            update(ref(db, `rooms/${roomId}`), { currentTurn: playerId });
+        };
+
         window.closeModal = function() {
             document.getElementById('result-modal').classList.add('hidden');
         };
 
-        // --- CÁC HÀM NỘI BỘ (KHÔNG CẦN GỌI TỪ HTML) ---
+        // --- LOGIC GAME & SYNC ---
 
         function listenToGame() {
             const roomRef = ref(db, `rooms/${roomId}`);
@@ -180,87 +193,139 @@
                 const data = snapshot.val();
                 if (!data) return;
 
-                // Cập nhật danh sách người chơi
-                renderPlayerList(data.players || {}, data.currentTurn);
-
-                // Cập nhật trạng thái game
+                // 1. Điều hướng màn hình (Setup vs Playing)
                 if (data.status === 'playing') {
                     document.getElementById('setup-panel').classList.add('hidden');
                     document.getElementById('game-panel').classList.remove('hidden');
                     renderLixis(data.lixis || []);
+                } else {
+                    // Nếu status là 'setup' (hoặc vừa reset)
+                    document.getElementById('game-panel').classList.add('hidden');
+                    document.getElementById('setup-panel').classList.remove('hidden');
                 }
 
-                // Thông báo lượt chơi
-                const notif = document.getElementById('turn-notification');
-                if (data.currentTurn) {
-                    notif.classList.remove('hidden');
-                    if (data.currentTurn === myId) {
-                        notif.innerText = "👉 ĐẾN LƯỢT BẠN CHỌN LÌ XÌ!";
-                        notif.style.background = "#ffd700";
-                    } else {
-                        notif.innerText = "⏳ Đang đợi người khác chọn...";
-                        notif.style.background = "#fff";
-                    }
-                } else {
-                    notif.innerText = "Chờ Admin mời...";
+                // 2. Cập nhật danh sách người chơi
+                renderPlayerList(data.players || {}, data.currentTurn);
+
+                // 3. Thông báo lượt chơi
+                updateNotification(data.currentTurn);
+
+                // 4. HIỂN THỊ KẾT QUẢ CHO TẤT CẢ MỌI NGƯỜI
+                if (data.lastResult && data.lastResult.timestamp !== lastResultTimestamp) {
+                    lastResultTimestamp = data.lastResult.timestamp;
+                    showGlobalResult(data.lastResult);
                 }
             });
+        }
+
+        // --- XỬ LÝ LÌ XÌ ---
+        
+        function renderLixis(lixis) {
+            const gameArea = document.getElementById('game-area');
+            // Logic tái tạo DOM thông minh: Chỉ xóa nếu số lượng thay đổi để tránh flicker
+            if (gameArea.childElementCount !== lixis.length) {
+                gameArea.innerHTML = '';
+                lixis.forEach((lixi, index) => {
+                    const el = document.createElement('div');
+                    el.className = 'lixi-envelope';
+                    el.id = `lixi-${index}`;
+                    el.onclick = () => handleOpenLixi(index);
+                    gameArea.appendChild(el);
+                });
+            }
+
+            // Cập nhật trạng thái opened
+            lixis.forEach((lixi, index) => {
+                const el = document.getElementById(`lixi-${index}`);
+                if (el && lixi.opened) el.classList.add('opened');
+            });
+        }
+
+        function handleOpenLixi(index) {
+            // Kiểm tra lượt trên Server trước khi mở
+            const roomRef = ref(db, `rooms/${roomId}`);
+            onValue(roomRef, (snap) => {
+                const d = snap.val();
+                if (d.currentTurn !== myId) return alert("Chưa đến lượt bạn!");
+                if (d.lixis[index].opened) return alert("Bao này đã mở!");
+
+                const amount = d.lixis[index].amount;
+
+                // Cập nhật DB: Mở bao + Ghi kết quả + Hết lượt
+                update(ref(db), {
+                    [`rooms/${roomId}/lixis/${index}/opened`]: true,
+                    [`rooms/${roomId}/currentTurn`]: null,
+                    [`rooms/${roomId}/lastResult`]: {
+                        winnerName: myName,
+                        amount: amount,
+                        timestamp: Date.now() // Dấu thời gian để trigger sự kiện hiển thị
+                    }
+                });
+
+            }, { onlyOnce: true });
+        }
+
+        // --- HIỂN THỊ KẾT QUẢ ---
+
+        function showGlobalResult(result) {
+            const modal = document.getElementById('result-modal');
+            const title = document.getElementById('result-title');
+            const winnerText = document.getElementById('result-winner');
+            const amountText = document.getElementById('result-amount');
+
+            amountText.innerText = formatMoney(result.amount);
+            
+            if (result.winnerName === myName) {
+                title.innerText = "🎉 BẠN ĐÃ NHẬN ĐƯỢC 🎉";
+                winnerText.innerText = "Chúc mừng năm mới phát tài!";
+                // Hiệu ứng pháo hoa hoặc âm thanh có thể thêm ở đây
+            } else {
+                title.innerText = "🔔 KẾT QUẢ LÌ XÌ 🔔";
+                winnerText.innerText = `Chúc mừng ${result.winnerName} đã mở được:`;
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // --- UTILS ---
+
+        function updateNotification(turnId) {
+            const notif = document.getElementById('turn-notification');
+            if (turnId) {
+                notif.classList.remove('hidden');
+                if (turnId === myId) {
+                    notif.innerText = "👉 ĐẾN LƯỢT BẠN! HÃY CHỌN 1 BAO LÌ XÌ";
+                    notif.style.background = "#ffd700";
+                    notif.style.color = "#b30000";
+                } else {
+                    notif.innerText = "⏳ Đang chờ người chơi chọn...";
+                    notif.style.background = "#fff";
+                    notif.style.color = "#333";
+                }
+            } else {
+                notif.classList.add('hidden');
+            }
         }
 
         function renderPlayerList(players, currentTurnId) {
             const listHtml = Object.entries(players).map(([id, p]) => {
                 const isTurn = id === currentTurnId;
-                // Nút mời chỉ hiện nếu mình là Admin và không phải là người chơi đó
-                let actionBtn = '';
-                if (isAdmin) {
-                    // Chú ý dấu nháy đơn ' quanh id
-                    actionBtn = `<button onclick="window.pickPlayer('${id}')">Mời</button>`;
+                let btn = '';
+                // Chỉ admin mới thấy nút mời, và không tự mời chính mình (để khách quan)
+                if (isAdmin) { 
+                    btn = `<button onclick="window.pickPlayer('${id}')" style="font-size:12px; padding:5px 10px">Mời</button>`;
                 }
-
+                
                 return `
                     <div class="player-item ${isTurn ? 'active-turn' : ''}">
                         <span>${p.name} ${isTurn ? '⭐' : ''}</span>
-                        ${actionBtn}
+                        ${btn}
                     </div>
                 `;
             }).join('');
-
+            
             document.getElementById('lobby-players').innerHTML = listHtml;
             if (isAdmin) document.getElementById('active-player-list').innerHTML = listHtml;
-        }
-
-        function renderLixis(lixis) {
-            const gameArea = document.getElementById('game-area');
-            gameArea.innerHTML = ''; // Xóa cũ vẽ mới để cập nhật trạng thái
-            
-            lixis.forEach((lixi, index) => {
-                const el = document.createElement('div');
-                el.className = 'lixi-envelope';
-                if (lixi.opened) el.classList.add('opened');
-
-                // Sự kiện click mở lì xì
-                el.onclick = () => {
-                    const roomRef = ref(db, `rooms/${roomId}`);
-                    // Dùng get để kiểm tra chính xác 1 lần
-                    onValue(roomRef, (snap) => {
-                        const d = snap.val();
-                        if (d.currentTurn !== myId) return alert("Chưa đến lượt bạn!");
-                        if (d.lixis[index].opened) return alert("Bao này mở rồi!");
-
-                        // Mở
-                        update(ref(db), {
-                            [`rooms/${roomId}/lixis/${index}/opened`]: true,
-                            [`rooms/${roomId}/currentTurn`]: null
-                        });
-                        
-                        // Hiện kết quả
-                        document.getElementById('result-amount').innerText = formatMoney(d.lixis[index].amount);
-                        document.getElementById('result-modal').classList.remove('hidden');
-
-                    }, { onlyOnce: true });
-                };
-                gameArea.appendChild(el);
-            });
         }
 
         function parseMoneyInput(str) {

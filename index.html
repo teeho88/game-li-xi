@@ -8,7 +8,7 @@
         /* --- CẤU HÌNH CHUNG --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #b30000; /* Đỏ đậm lễ hội */
+            background-color: #b30000;
             color: #fff;
             margin: 0;
             padding: 20px;
@@ -19,14 +19,15 @@
         }
 
         h1 {
-            color: #ffd700; /* Vàng kim */
+            color: #ffd700;
             text-shadow: 2px 2px 4px #000;
             margin-bottom: 20px;
             text-transform: uppercase;
             letter-spacing: 2px;
+            text-align: center;
         }
 
-        /* --- PHẦN CÀI ĐẶT (SETUP PANEL) --- */
+        /* --- PHẦN CÀI ĐẶT --- */
         #setup-panel {
             background: #fff;
             padding: 30px;
@@ -36,40 +37,28 @@
             width: 100%;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             margin-bottom: 30px;
-            /* Flexbox để căn giữa nội dung bên trong */
             display: flex;
             flex-direction: column;
             align-items: center; 
             text-align: center;
         }
 
-        #setup-panel h3 {
-            margin-top: 0;
-            color: #b30000;
-        }
-
-        /* Ô nhập liệu được làm đẹp và căn giữa */
         textarea {
-            width: 90%; /* Chiếm 90% chiều ngang của khung cha */
+            width: 90%;
             height: 100px;
             margin: 15px 0;
             padding: 15px;
             border: 2px solid #ccc;
             border-radius: 8px;
             font-size: 16px;
-            font-family: inherit;
-            resize: vertical; /* Chỉ cho phép kéo giãn chiều dọc */
             outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            box-sizing: border-box; /* Quan trọng: Giữ padding không làm vỡ khung */
+            box-sizing: border-box;
         }
 
         textarea:focus {
             border-color: #b30000;
-            box-shadow: 0 0 8px rgba(179, 0, 0, 0.2);
         }
 
-        /* Nút bấm chung */
         button {
             background-color: #ffd700;
             color: #b30000;
@@ -82,66 +71,46 @@
             transition: all 0.2s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(255, 215, 0, 0.4);
             background-color: #ffec8b;
         }
 
-        button:active {
-            transform: translateY(0);
-        }
-
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
 
         /* --- KHU VỰC CHƠI GAME --- */
         #game-area {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 25px;
+            gap: 20px;
             max-width: 1200px;
             width: 100%;
             padding-bottom: 50px;
         }
 
-        /* --- BAO LÌ XÌ --- */
         .lixi-envelope {
-            width: 110px;
-            height: 150px;
+            width: 100px;
+            height: 140px;
             background: linear-gradient(135deg, #ff4d4d, #cc0000);
             border: 2px solid #ffd700;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-size: 50px;
+            transition: transform 0.3s;
             user-select: none;
-        }
-
-        /* Họa tiết trang trí đơn giản */
-        .lixi-envelope::after {
-            content: "福"; /* Chữ Phúc */
-            font-size: 24px;
-            color: #ffd700;
-            position: absolute;
-            top: 10px;
-            font-weight: bold;
-            border: 1px solid #ffd700;
-            padding: 2px 5px;
-            border-radius: 4px;
         }
 
         .lixi-envelope::before {
             content: "🧧";
+            font-size: 50px;
         }
 
         .lixi-envelope:hover {
@@ -149,15 +118,13 @@
             z-index: 10;
         }
 
-        /* Hiệu ứng khi mở */
         .lixi-envelope.opened {
-            animation: popOut 0.6s forwards;
+            animation: popOut 0.5s forwards;
             pointer-events: none;
         }
 
         @keyframes popOut {
             0% { transform: scale(1); opacity: 1; }
-            40% { transform: scale(1.3); opacity: 1; }
             100% { transform: scale(0); opacity: 0; }
         }
 
@@ -168,33 +135,47 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85); /* Nền tối hơn */
+            background: rgba(0,0,0,0.85);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
             backdrop-filter: blur(5px);
+            padding: 20px; /* Thêm padding để không bị sát lề màn hình đt */
+            box-sizing: border-box;
         }
 
         .modal-content {
             background: #fff;
             color: #b30000;
-            padding: 40px;
+            padding: 30px;
             border-radius: 20px;
             border: 4px solid #ffd700;
             text-align: center;
+            width: 100%;
+            max-width: 450px; /* Giới hạn chiều rộng tối đa */
             animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            max-width: 90%;
-            width: 400px;
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
+        /* CSS chỉnh sửa để chữ luôn hiển thị đầy đủ */
         .money-text {
-            font-size: 48px;
+            /* Dùng clamp để font chữ tự động to nhỏ theo màn hình: 
+               Min: 24px, Ưu tiên: 8vw, Max: 50px */
+            font-size: clamp(24px, 8vw, 50px); 
             font-weight: 800;
             margin: 20px 0;
             color: #d60000;
             text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+            
+            /* Đảm bảo chữ dài sẽ xuống dòng chứ không tràn ra ngoài */
+            word-wrap: break-word;
+            word-break: break-word; 
+            width: 100%;
+            line-height: 1.2;
         }
 
         @keyframes zoomIn {
@@ -221,28 +202,49 @@
     <h1>🧧 HÁI LỘC ĐẦU XUÂN 🧧</h1>
 
     <div id="setup-panel">
-        <h3>CÀI ĐẶT TRÒ CHƠI</h3>
-        <p>Nhập số tiền cho từng bao, ngăn cách bằng dấu phẩy:</p>
-        
-        <textarea id="money-input" placeholder="Ví dụ: 50k, 100k, 200k...">200k, 500k, 500k, 1000k</textarea>
-        
-        <button onclick="startGame()">BẮT ĐẦU NGAY</button>
+        <h3>CÀI ĐẶT</h3>
+        <p>Nhập số tiền (hỗ trợ viết tắt k, tr):</p>
+        <textarea id="money-input" placeholder="Ví dụ: 100k, 200k, 500k, 1tr, 2 triệu..."></textarea>
+        <button onclick="startGame()">BẮT ĐẦU</button>
     </div>
 
     <div id="game-area"></div>
 
-    <button id="reset-btn" class="hidden" onclick="location.reload()">↺ CHƠI LẠI TỪ ĐẦU</button>
+    <button id="reset-btn" class="hidden" onclick="location.reload()">↺ CHƠI LẠI</button>
 
     <div id="result-modal" class="hidden" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2>🎉 CHÚC MỪNG 🎉</h2>
-            <p>Bạn đã nhận được lộc xuân:</p>
+            <p>Bạn nhận được lì xì:</p>
             <div class="money-text" id="result-amount">0 đ</div>
             <button onclick="closeModal()">NHẬN LỘC</button>
         </div>
     </div>
 
     <script>
+        // Hàm mới: Chuyển đổi chữ (100k, 1tr) thành số (100000, 1000000)
+        function parseMoneyString(str) {
+            str = str.toLowerCase().trim();
+            let multiplier = 1;
+
+            // Xử lý đơn vị Triệu
+            if (str.includes('tr') || str.includes('m')) {
+                multiplier = 1000000;
+                str = str.replace(/tr|iệu|ieu|m/g, ''); // Xóa chữ để lấy số
+            } 
+            // Xử lý đơn vị Ngàn (k)
+            else if (str.includes('k') || str.includes('nghìn') || str.includes('ngan')) {
+                multiplier = 1000;
+                str = str.replace(/k|nghìn|ngan/g, '');
+            }
+
+            // Xóa hết các ký tự không phải số hoặc dấu chấm (để giữ phần thập phân nếu có)
+            let numValue = parseFloat(str.replace(/[^0-9.]/g, ''));
+
+            if (isNaN(numValue)) return 0;
+            return numValue * multiplier;
+        }
+
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -262,18 +264,18 @@
                 return;
             }
 
+            // Sử dụng hàm parseMoneyString mới
             const amounts = input.split(',')
-                .map(str => parseInt(str.trim().replace(/\./g, '')))
-                .filter(num => !isNaN(num) && num > 0);
+                .map(str => parseMoneyString(str))
+                .filter(num => num > 0);
 
             if (amounts.length === 0) {
-                alert("Dữ liệu nhập vào chưa đúng. Vui lòng kiểm tra lại!");
+                alert("Dữ liệu nhập vào chưa đúng. Ví dụ: 100k, 500k, 1tr");
                 return;
             }
 
             const shuffledAmounts = shuffleArray(amounts);
 
-            // Ẩn Setup, Hiện Game
             const setupPanel = document.getElementById('setup-panel');
             setupPanel.style.opacity = '0';
             setTimeout(() => {
@@ -291,14 +293,11 @@
                 const envelope = document.createElement('div');
                 envelope.classList.add('lixi-envelope');
                 envelope.dataset.amount = amount;
-                
-                // Thêm animation delay nhẹ để các bao hiện ra lần lượt cho đẹp
                 envelope.style.animation = `zoomIn 0.5s ease ${index * 0.1}s backwards`;
 
                 envelope.onclick = function() {
                     openEnvelope(this);
                 };
-
                 gameArea.appendChild(envelope);
             });
         }
